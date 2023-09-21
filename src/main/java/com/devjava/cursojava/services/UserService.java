@@ -13,6 +13,8 @@ import com.devjava.cursojava.repositories.UserRepository;
 import com.devjava.cursojava.services.exceptions.DatabaseException;
 import com.devjava.cursojava.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 
@@ -39,13 +41,17 @@ public class UserService {
 			throw new ResourceNotFoundException(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException(e.getMessage());
-		}
+		} 
 	}
 
 	public User update(Long id, User user) {
-		User entity = repository.getReferenceById(id);
-		UpdateData(entity, user);
-		return repository.save(entity);
+		try {
+			User entity = repository.getReferenceById(id);
+			UpdateData(entity, user);
+			return repository.save(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 
 	private void UpdateData(User entity, User user) {
